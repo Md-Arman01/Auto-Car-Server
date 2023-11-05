@@ -13,6 +13,7 @@ app.use(express.json())
 
 
 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kplqqe8.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -27,8 +28,18 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
 
+    const servicesCollection = client.db("auto_car").collection("services");
 
-    
+
+    app.get('/services', async(req, res) => {
+      const cursor = servicesCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+
+    })
+
+
+
 
 
     // Connect the client to the server	(optional starting in v4.7)
@@ -42,6 +53,7 @@ async function run() {
   }
 }
 run().catch(console.dir);
+
 
 
 
