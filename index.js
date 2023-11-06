@@ -46,6 +46,7 @@ async function run() {
         console.log(error)
       }
     });
+
     app.post("/booking", async (req, res) => {
       try {
         const booked = req.body;
@@ -65,6 +66,31 @@ async function run() {
         console.log(error);
       }
     });
+    
+    app.post('/services', async(req, res)=>{
+      try{
+        const service = req.body;
+        const doc = {
+               services_img: service.services_img ,               
+               services_name: service.services_name ,               
+               services_description: service.services_description ,               
+               provider_img: service.provider_img ,               
+               provider_name: service.provider_name ,               
+               location: service.location ,               
+               price: service.price ,               
+               provider_email: service.provider_email
+        }
+        const result = await servicesCollection.insertOne(doc)
+        res.send(result)
+      }
+      catch(error){
+        console.log(error)
+      }
+    })
+
+
+
+
 
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
