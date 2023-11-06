@@ -63,6 +63,21 @@ async function run() {
     })
 
 
+    app.get('/booking/:email', async(req, res) => {
+
+      try{
+      const email = req.params.email;
+      const query = {user_email: email}
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+
+      }
+      catch(error){
+        console.log(error)
+      }
+    })
+
+
     app.post("/booking", async (req, res) => {
       try {
         const booked = req.body;
@@ -70,6 +85,8 @@ async function run() {
           services_img: booked.services_img,
           services_name: booked.services_name,
           provider_email: booked.provider_email,
+          provider_img: booked.provider_img,
+          provider_name: booked.provider_name,
           user_email: booked.user_email,
           instruction: booked.instruction,
           price: booked.price,
