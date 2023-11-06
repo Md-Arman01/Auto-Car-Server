@@ -105,22 +105,39 @@ async function run() {
     })
     
     app.put('/services/:id', async(req, res)=> {
-      const updateService = req.body;
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) } 
-      const options = { upsert: true }
-      const updateDoc = {
-        $set: {
-               services_img: updateService.services_img,               
-               services_name: updateService.services_name,               
-               services_description: updateService.services_description,               
-               location: updateService.location,               
-               price: updateService.price
-        },
-      };
-      const result = await servicesCollection.updateOne(filter, updateDoc, options);
-      res.send(result);
+      try{
+        const updateService = req.body;
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) } 
+        const options = { upsert: true }
+        const updateDoc = {
+          $set: {
+                 services_img: updateService.services_img,               
+                 services_name: updateService.services_name,               
+                 services_description: updateService.services_description,               
+                 location: updateService.location,               
+                 price: updateService.price
+          },
+        };
+        const result = await servicesCollection.updateOne(filter, updateDoc, options);
+        res.send(result);
 
+      }
+      catch(error){
+        console.log(error)
+      }
+    })
+
+    app.delete('/services/:id', async(req, res)=> {
+      try{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await servicesCollection.deleteOne(query)
+        res.send(result)
+      }
+      catch(error){
+        console.log(error)
+      }
     })
 
 
