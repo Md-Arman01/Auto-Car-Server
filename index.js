@@ -47,6 +47,22 @@ async function run() {
       }
     });
 
+
+    app.get('/services1/:email', async(req, res) => {
+
+      try{
+      const email = req.params.email;
+      const query = {provider_email: email}
+      const result = await servicesCollection.find(query).toArray()
+      res.send(result)
+
+      }
+      catch(error){
+        console.log(error)
+      }
+    })
+
+
     app.post("/booking", async (req, res) => {
       try {
         const booked = req.body;
