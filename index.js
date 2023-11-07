@@ -77,6 +77,19 @@ async function run() {
       }
     })
 
+    app.get('/booking1/:email', async(req, res) => {
+
+      try{
+      const email = req.params.email;
+      const query = {provider_email: email}
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+      }
+      catch(error){
+        console.log(error)
+      }
+    })
+
 
     app.post("/booking", async (req, res) => {
       try {
@@ -145,22 +158,32 @@ async function run() {
       }
     })
 
+    app.patch('/booking/:id', async(req,res)=> {
+      try{
+        const id = req.params.id;
+        const filter = {_id: new ObjectId(id)}
+        const updated = req.body;
+        const updatedDoc = {
+          $set: {
+            status: updated.status,
+          }
+        }
+        const result = await bookingCollection.updateOne(filter,updatedDoc)
+        res.send(result)
+
+
+
+      }catch(error){
+        console.log(error)
+      }
+    })
+
+
     app.delete('/services/:id', async(req, res)=> {
       try{
         const id = req.params.id;
         const query = {_id: new ObjectId(id)}
         const result = await servicesCollection.deleteOne(query)
-        res.send(result)
-      }
-      catch(error){
-        console.log(error)
-      }
-    })
-    app.delete('/booking/:id', async(req, res)=> {
-      try{
-        const id = req.params.id;
-        const query = {_id: new ObjectId(id)}
-        const result = await bookingCollection.deleteOne(query)
         res.send(result)
       }
       catch(error){
