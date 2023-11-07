@@ -16,6 +16,25 @@ app.use(express.json());
 app.use(cookieParser())
 
 
+// custom middleware
+const verifyToken = async(req, res, next) => {
+  const token = req.cookies.token;
+  console.log('tttt token 22', token)
+  if(!token){
+   return res.status(401).send({message: "unauthorized 24"})
+ }
+ jwt.verify(token, process.env.ACCESS_SECRET_TOKEN , (err, decoded)=> {
+   if(err){
+     console.log(err, "28")
+     return res.status(401).send({message: "unAuthorized 29"})
+     }
+     console.log('value in the token', decoded)
+     req.user = decoded
+     next()
+ });
+
+}
+
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kplqqe8.mongodb.net/?retryWrites=true&w=majority`;
@@ -81,7 +100,7 @@ async function run() {
     });
   
 
-    app.get('/services1/:email', async(req, res) => {
+    app.get('/services1/:email',  async(req, res) => {
 
       try{
       const email = req.params.email;
@@ -96,9 +115,12 @@ async function run() {
     })
 
 
-    app.get('/booking/:email', async(req, res) => {
+    app.get('/booking/:email', verifyToken, async(req, res) => {
 
       try{
+        if(req.params.email !== req.user.email){
+          return res.status(403).send({message: 'forbidden access 122'})
+      }
       const email = req.params.email;
       const query = {user_email: email}
       const result = await bookingCollection.find(query).toArray()
@@ -110,9 +132,12 @@ async function run() {
       }
     })
 
-    app.get('/booking1/:email', async(req, res) => {
+    app.get('/booking1/:email', verifyToken, async(req, res) => {
 
       try{
+        if(req.params.email !== req.user.email){
+          return res.status(403).send({message: 'forbidden access 122'})
+      }
       const email = req.params.email;
       const query = {provider_email: email}
       const result = await bookingCollection.find(query).toArray()
