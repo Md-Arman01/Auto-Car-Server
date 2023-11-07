@@ -2,12 +2,21 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+var jwt = require('jsonwebtoken')
+var cookieParser = require('cookie-parser')
 const app = express();
 const port = process.env.PORT || 5000;
 
 // middleWare
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  credentials: true
+}))
 app.use(express.json());
+app.use(cookieParser())
+
+
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kplqqe8.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -24,6 +33,30 @@ async function run() {
   try {
     const servicesCollection = client.db("auto_car").collection("services");
     const bookingCollection = client.db("auto_car").collection("booking");
+
+    // Auth cookies token API
+    app.post('/jwt', async(req, res)=> {
+      const user = req.body;
+      console.log(user)
+      const token = jwt.sign(user , process.env.ACCESS_SECRET_TOKEN , { expiresIn: '1h' });
+      
+      res
+      .cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+      })
+      .send({success: true})
+    })
+
+
+    //-----------
+
+
+
+
+
+    // server API
 
     app.get("/services", async (req, res) => {
       try{
@@ -46,7 +79,7 @@ async function run() {
         console.log(error)
       }
     });
-
+  
 
     app.get('/services1/:email', async(req, res) => {
 
@@ -170,9 +203,6 @@ async function run() {
         }
         const result = await bookingCollection.updateOne(filter,updatedDoc)
         res.send(result)
-
-
-
       }catch(error){
         console.log(error)
       }
