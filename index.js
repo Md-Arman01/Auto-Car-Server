@@ -28,7 +28,7 @@ const verifyToken = async(req, res, next) => {
      console.log(err, "28")
      return res.status(401).send({message: "unAuthorized 29"})
      }
-     console.log('value in the token', decoded)
+     console.log('final user token', decoded)
      req.user = decoded
      next()
  });
@@ -55,17 +55,30 @@ async function run() {
 
     // Auth cookies token API
     app.post('/jwt', async(req, res)=> {
-      const user = req.body;
-      console.log(user)
-      const token = jwt.sign(user , process.env.ACCESS_SECRET_TOKEN , { expiresIn: '1h' });
-      
-      res
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none'
-      })
-      .send({success: true})
+      try{
+        const user = req.body;
+        console.log(user)
+        const token = jwt.sign(user , process.env.ACCESS_SECRET_TOKEN , { expiresIn: '1h' });
+        
+        res
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'none'
+        })
+        .send({success: true})
+      }
+      catch(error){
+        console.log(error)
+      }
+    })
+
+    app.post('/logout', async(req, res)=> {
+      try{
+        res.clearCookie('token', {secure: true, sameSite: 'none'}).send({success: true})
+      }catch(error){
+        console.log(error)
+      }
     })
 
 
@@ -100,9 +113,12 @@ async function run() {
     });
   
 
-    app.get('/services1/:email',  async(req, res) => {
+    app.get('/services1/:email', verifyToken,  async(req, res) => {
 
       try{
+        if(req.params.email !== req.user.email){
+          return res.status(403).send({message: 'forbidden access 122'})
+      }
       const email = req.params.email;
       const query = {provider_email: email}
       const result = await servicesCollection.find(query).toArray()
