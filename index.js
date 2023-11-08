@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 
 // middleWare
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['https://book-finder-a4e89.web.app', 'https://book-finder-a4e89.firebaseapp.com'],
   credentials: true
 }))
 app.use(express.json());
@@ -113,12 +113,9 @@ async function run() {
     });
   
 
-    app.get('/services1/:email', verifyToken,  async(req, res) => {
+    app.get('/services1/:email',  async(req, res) => {
 
       try{
-        if(req.params.email !== req.user.email){
-          return res.status(403).send({message: 'forbidden access 122'})
-      }
       const email = req.params.email;
       const query = {provider_email: email}
       const result = await servicesCollection.find(query).toArray()
